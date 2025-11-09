@@ -1,0 +1,215 @@
+extends layout
+
+block content
+  .bg-white.rounded-lg.shadow-md.p-6
+    .flex.justify-between.items-center.mb-6
+      h2.text-2xl.font-bold My Books
+      button(onclick="showAddBookModal()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700") Add New Book
+    
+    // Stats section
+    .grid.grid-cols-1.gap-4.mb-6(class="md:grid-cols-3")
+      .bg-blue-100.p-4.rounded-lg
+        .text-2xl.font-bold#totalBooks 0
+        .text-gray-600 Total Books
+      .bg-green-100.p-4.rounded-lg
+        .text-2xl.font-bold#booksRead 0
+        .text-gray-600 Books Read
+      .bg-yellow-100.p-4.rounded-lg
+        .text-2xl.font-bold#totalPages 0
+        .text-gray-600 Total Pages Read
+    
+    // Books list
+    #booksList.space-y-4
+      .text-gray-500.text-center.py-8 No books added yet. Click "Add New Book" to get started!
+  
+  // Add Book Modal
+  #addBookModal(class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center")
+    .bg-white.rounded-lg.p-6.w-full.max-w-md.mx-4
+      .flex.justify-between.items-center.mb-4
+        h3.text-lg.font-bold Add New Book
+        button(onclick="hideAddBookModal()" class="text-gray-500 hover:text-gray-700") ✕
+      
+      form(id="addBookForm")
+        .mb-4
+          label(class="block text-sm font-medium text-gray-700 mb-2") Title*
+          input(type="text" name="title" required class="w-full px-3 py-2 border border-gray-300 rounded-md")
+        
+        .mb-4
+          label(class="block text-sm font-medium text-gray-700 mb-2") Author*
+          input(type="text" name="author" required class="w-full px-3 py-2 border border-gray-300 rounded-md")
+        
+        .mb-4
+          label(class="block text-sm font-medium text-gray-700 mb-2") Total Pages*
+          input(type="number" name="pages" required min="1" class="w-full px-3 py-2 border border-gray-300 rounded-md")
+        
+        .mb-4
+          label(class="block text-sm font-medium text-gray-700 mb-2") Pages Read
+          input(type="number" name="pagesRead" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-md")
+        
+        .mb-4
+          label(class="block text-sm font-medium text-gray-700 mb-2") Status
+          select(name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md")
+            option(value="Want to read") Want to read
+            option(value="Currently reading") Currently reading
+            option(value="Read") Read
+            option(value="Re-read") Re-read
+            option(value="DNF") DNF
+            option(value="Returned Unread") Returned Unread
+        
+        .mb-4
+          label(class="block text-sm font-medium text-gray-700 mb-2") Format
+          select(name="format" class="w-full px-3 py-2 border border-gray-300 rounded-md")
+            option(value="Print") Print
+            option(value="PDF") PDF
+            option(value="Ebook") Ebook
+            option(value="AudioBook") AudioBook
+        
+        .mb-4
+          label(class="block text-sm font-medium text-gray-700 mb-2") Price
+          input(type="number" name="price" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md")
+        
+        .mb-6
+          label(class="block text-sm font-medium text-gray-700 mb-2") Suggested By
+          input(type="text" name="suggestedBy" class="w-full px-3 py-2 border border-gray-300 rounded-md")
+        
+        .flex.space-x-3
+          button(type="button" onclick="hideAddBookModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400") Cancel
+          button(type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700") Add Book
+
+  script.
+    // Store books in session/local storage for this demo
+    let books = JSON.parse(sessionStorage.getItem('books') || '[]');
+    
+    function showAddBookModal() {
+      document.getElementById('addBookModal').classList.remove('hidden');
+    }
+    
+    function hideAddBookModal() {
+      document.getElementById('addBookModal').classList.add('hidden');
+      document.getElementById('addBookForm').reset();
+    }
+    
+    function addBook(bookData) {
+      const book = {
+        id: Date.now(),
+        ...bookData,
+        pages: parseInt(bookData.pages),
+        pagesRead: parseInt(bookData.pagesRead || 0),
+        price: parseFloat(bookData.price || 0),
+        finished: false
+      };
+      
+      // Auto-set finished if pages read >= total pages
+      if (book.pagesRead >= book.pages) {
+        book.finished = true;
+        book.status = 'Read';
+      }
+      
+      books.push(book);
+      sessionStorage.setItem('books', JSON.stringify(books));
+      renderBooks();
+      hideAddBookModal();
+    }
+    
+    function updateBookProgress(id, pagesRead) {
+      const bookIndex = books.findIndex(b => b.id === parseInt(id));
+      if (bookIndex !== -1) {
+        books[bookIndex].pagesRead = parseInt(pagesRead);
+        if (books[bookIndex].pagesRead >= books[bookIndex].pages) {
+          books[bookIndex].finished = true;
+          books[bookIndex].status = 'Read';
+        } else {
+          books[bookIndex].finished = false;
+        }
+        sessionStorage.setItem('books', JSON.stringify(books));
+        renderBooks();
+      }
+    }
+    
+    function deleteBook(id) {
+      if (confirm('Are you sure you want to delete this book?')) {
+        books = books.filter(b => b.id !== parseInt(id));
+        sessionStorage.setItem('books', JSON.stringify(books));
+        renderBooks();
+      }
+    }
+    
+    function calculateProgress(book) {
+      if (!book.pages || book.pages === 0) return 0;
+      return Math.min(100, Math.round((book.pagesRead / book.pages) * 100));
+    }
+    
+    function renderBooks() {
+      const booksList = document.getElementById('booksList');
+      
+      if (books.length === 0) {
+        booksList.innerHTML = '<div class="text-gray-500 text-center py-8">No books added yet. Click "Add New Book" to get started!</div>';
+        updateStats();
+        return;
+      }
+      
+      booksList.innerHTML = books.map(book => {
+        const progress = calculateProgress(book);
+        return `
+          <div class="border rounded-lg p-4 bg-gray-50">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h3 class="font-bold text-lg">${book.title}</h3>
+                <p class="text-gray-600">by ${book.author}</p>
+              </div>
+              <button onclick="deleteBook(${book.id})" class="text-red-500 hover:text-red-700">🗑️</button>
+            </div>
+            
+            <div class="mb-3">
+              <div class="flex justify-between text-sm mb-1">
+                <span>Progress: ${progress}%</span>
+                <span>${book.pagesRead} / ${book.pages} pages</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: ${progress}%"></div>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm mb-3">
+              <div><strong>Status:</strong> ${book.status}</div>
+              <div><strong>Format:</strong> ${book.format}</div>
+              ${book.price > 0 ? `<div><strong>Price:</strong> $${book.price}</div>` : ''}
+              ${book.suggestedBy ? `<div><strong>Suggested by:</strong> ${book.suggestedBy}</div>` : ''}
+            </div>
+            
+            <div class="flex space-x-2">
+              <input type="number" 
+                     value="${book.pagesRead}" 
+                     min="0" 
+                     max="${book.pages}"
+                     onchange="updateBookProgress(${book.id}, this.value)"
+                     class="px-2 py-1 border rounded w-20">
+              <span class="py-1">pages read</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      updateStats();
+    }
+    
+    function updateStats() {
+      const totalBooks = books.length;
+      const booksRead = books.filter(b => b.finished).length;
+      const totalPagesRead = books.reduce((sum, b) => sum + b.pagesRead, 0);
+      
+      document.getElementById('totalBooks').textContent = totalBooks;
+      document.getElementById('booksRead').textContent = booksRead;
+      document.getElementById('totalPages').textContent = totalPagesRead;
+    }
+    
+    // Form submission
+    document.getElementById('addBookForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const bookData = Object.fromEntries(formData.entries());
+      addBook(bookData);
+    });
+    
+    // Initial render
+    renderBooks();

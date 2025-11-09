@@ -1,0 +1,90 @@
+/* Additional custom styles for the Book Tracker app */
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.book-card {
+  transition: all 0.3s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.progress-bar {
+  transition: width 0.5s ease-in-out;
+}
+
+/* Form focus styles */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(59 130 246);
+  border-color: rgb(59 130 246);
+}
+
+/* Button hover effects */
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Modal animation */
+.modal {
+  backdrop-filter: blur(4px);
+}
+
+/* Success/Error message animations */
+.alert {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stats cards */
+.stat-card {
+  background: linear-gradient(135deg, var(--bg-color-1), var(--bg-color-2));
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: scale(1.02);
+}
+
+/* Reading status badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-read { background-color: #10B981; color: white; }
+.status-reading { background-color: #3B82F6; color: white; }
+.status-want { background-color: #6B7280; color: white; }
+.status-dnf { background-color: #EF4444; color: white; }
+.status-returned { background-color: #F59E0B; color: white; }
