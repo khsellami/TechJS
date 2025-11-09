@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Book Reading Tracker</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Tailwind CDN (for quick prototype) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">TP: Book Reading Tracker</h1>
+
+    <!-- Form -->
+    <div class="bg-white shadow p-4 rounded mb-6">
+      <form id="bookForm" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <input name="title" required placeholder="Title" class="p-2 border rounded" />
+        <input name="author" placeholder="Author" class="p-2 border rounded" />
+        <input name="pages" required type="number" min="1" placeholder="Number of pages" class="p-2 border rounded" />
+        <input name="pagesRead" type="number" min="0" placeholder="Pages read (default 0)" class="p-2 border rounded" />
+        <select name="status" class="p-2 border rounded">
+          <option>Want to read</option>
+          <option>Currently reading</option>
+          <option>Read</option>
+          <option>Re-read</option>
+          <option>DNF</option>
+          <option>Returned Unread</option>
+        </select>
+        <select name="format" class="p-2 border rounded">
+          <option>Print</option>
+          <option>PDF</option>
+          <option>Ebook</option>
+          <option>AudioBook</option>
+        </select>
+        <input name="price" type="number" min="0" step="0.01" placeholder="Price" class="p-2 border rounded" />
+        <input name="suggestedBy" placeholder="Suggested by" class="p-2 border rounded" />
+        <div class="md:col-span-2 flex justify-end">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Add Book</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Summary -->
+    <div class="bg-white shadow p-4 rounded mb-6 flex justify-between items-center">
+      <div>
+        <div class="text-sm text-gray-500">Total books:</div>
+        <div id="totalBooks" class="text-xl font-semibold">0</div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">Books finished:</div>
+        <div id="finishedBooks" class="text-xl font-semibold">0</div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">Total pages read:</div>
+        <div id="totalPagesRead" class="text-xl font-semibold">0</div>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div id="booksList" class="space-y-4"></div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
